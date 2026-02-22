@@ -23,6 +23,9 @@ class VectorField {
         this.error = null;
 
         try {
+            // Preprocess expression to handle common patterns
+            expression = this.preprocessExpression(expression);
+            
             // Preprocess the expression to extract i, j, k components
             const components = this.extractComponents(expression);
             
@@ -38,6 +41,52 @@ class VectorField {
             this.error = e.message;
             return false;
         }
+    }
+
+    /**
+     * Preprocess expression to handle complex patterns like (i*y+j*x)/(denominator)
+     */
+    preprocessExpression(expression) {
+        expression = expression.trim();
+        
+        // Simple approach: Find pattern (stuff with i,j,k)/denominator and expand it
+        // Use a single pass with regex
+        
+        // Pattern 1: (expression with i/j/k)/function(args)
+        // Example: (i*y + j*x)/sqrt(x^2+y^2)
+        const pattern1 = /\(([^()]*[ijk][^()]*)\)\/([a-zA-Z_][a-zA-Z0-9_]*\([^)]+\))/g;
+        expression = expression.replace(pattern1, (match, numerator, denominator) => {
+            const terms = this.splitIntoTerms(numerator);
+            return terms.map(term => {
+                const t = term.trim();
+                if (t.startsWith('+')) {
+                    return '+' + t.substring(1).trim() + '/' + denominator;
+                } else if (t.startsWith('-')) {
+                    return t.trim() + '/' + denominator;
+                } else {
+                    return t + '/' + denominator;
+                }
+            }).join('');
+        });
+        
+        // Pattern 2: (expression with i/j/k)/(parenthesized expression)
+        // Example: (i*y + j*x)/(x^2+y^2)
+        const pattern2 = /\(([^()]*[ijk][^()]*)\)\/\(([^()]+)\)/g;
+        expression = expression.replace(pattern2, (match, numerator, denominator) => {
+            const terms = this.splitIntoTerms(numerator);
+            return terms.map(term => {
+                const t = term.trim();
+                if (t.startsWith('+')) {
+                    return '+' + t.substring(1).trim() + '/(' + denominator + ')';
+                } else if (t.startsWith('-')) {
+                    return t.trim() + '/(' + denominator + ')';
+                } else {
+                    return t + '/(' + denominator + ')';
+                }
+            }).join('');
+        });
+        
+        return expression;
     }
 
     /**
@@ -128,8 +177,35 @@ class VectorField {
         // Remove spaces
         term = term.replace(/\s+/g, '');
 
+        // Remove leading + or - and remember the sign
+        let sign = 1;
+        if (term.startsWith('+')) {
+            term = term.substring(1);
+        } else if (term.startsWith('-')) {
+            sign = -1;
+            term = term.substring(1);
+        }
+
+        // Remove outer wrapping parentheses if present
+        term = term.trim();
+        if (term.startsWith('(') && term.endsWith(')')) {
+            // Check if these are matching outer parens
+            let depth = 0;
+            let isOuter = true;
+            for (let i = 0; i < term.length; i++) {
+                if (term[i] === '(') depth++;
+                if (term[i] === ')') depth--;
+                if (depth === 0 && i < term.length - 1) {
+                    isOuter = false;
+                    break;
+                }
+            }
+            if (isOuter) {
+                term = term.slice(1, -1);
+            }
+        }
+
         // Find the unit vector as a standalone token (not inside function names)
-        // Use regex to find position
         const regex = new RegExp(`(?:^|[^a-z])(${unitVector})(?:[^a-z]|$)`, 'i');
         const match = term.match(regex);
         
@@ -137,9 +213,8 @@ class VectorField {
         
         const index = match.index + (match[0].startsWith(unitVector) ? 0 : 1);
 
-        // Check for coefficient before unit vector (e.g., "2*i" or "(-y)*i")
+        // Extract parts before and after the unit vector
         let beforeCoef = term.substring(0, index);
-        // Check for coefficient after unit vector (e.g., "i*2" or "i*(-y)")
         let afterCoef = term.substring(index + unitVector.length);
 
         // Remove multiplication signs
@@ -150,28 +225,30 @@ class VectorField {
             afterCoef = afterCoef.slice(1);
         }
 
-        // Determine which coefficient to use
+        // Clean up coefficients
+        beforeCoef = beforeCoef.trim();
+        afterCoef = afterCoef.trim();
+
+        // Determine the coefficient
         let coef = '';
         
-        if (beforeCoef && beforeCoef !== '+' && beforeCoef !== '-') {
-            // Has coefficient before
+        if (beforeCoef && afterCoef) {
+            // Has coefficients on both sides (e.g., "2*i*x" -> before="2", after="x")
+            coef = `(${beforeCoef})*(${afterCoef})`;
+        } else if (beforeCoef) {
+            // Has coefficient before (e.g., "y*i")
             coef = beforeCoef;
-            // If also has after, multiply them
-            if (afterCoef) {
-                coef = `(${beforeCoef})*(${afterCoef})`;
-            }
         } else if (afterCoef) {
-            // Only has coefficient after
+            // Has coefficient after (e.g., "i*y")
             coef = afterCoef;
-            // Apply sign from before if present
-            if (beforeCoef === '-') {
-                coef = `-(${afterCoef})`;
-            }
         } else {
             // No coefficient, just the unit vector
-            if (beforeCoef === '-') return '-1';
-            if (beforeCoef === '+' || beforeCoef === '') return '1';
-            return beforeCoef;
+            coef = '1';
+        }
+
+        // Apply sign
+        if (sign === -1) {
+            coef = `-(${coef})`;
         }
 
         return coef;
