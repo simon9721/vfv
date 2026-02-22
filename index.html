@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Field Visualizer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Vector Field Visualizer</h1>
+            <p class="subtitle">Interactive 2D & 3D Vector Field Visualization</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <div class="section">
+                    <h3>Vector Field Expression</h3>
+                    <div class="form-group">
+                        <label for="vectorExpression">Enter vector field (use x, y, z, t):</label>
+                        <input type="text" id="vectorExpression" 
+                               placeholder="e.g., i*(-y) + j*x  or  i*sin(x) + j*cos(y)" 
+                               value="i*(-y) + j*x">
+                        <div class="hint">Use i, j, k for unit vectors. Functions: sin, cos, exp, sqrt, etc.</div>
+                        <div id="expressionError" class="error-message"></div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Visualization Settings</h3>
+                    
+                    <div class="form-group">
+                        <label for="dimension">Dimension:</label>
+                        <select id="dimension">
+                            <option value="2d">2D (XY Plane)</option>
+                            <option value="3d">3D (XYZ Space)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="renderMode">Render Mode:</label>
+                        <select id="renderMode">
+                            <option value="arrows">Arrows</option>
+                            <option value="lines">Field Lines</option>
+                            <option value="particles">Particles</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="colorMode">Color Mode:</label>
+                        <select id="colorMode">
+                            <option value="magnitude">Magnitude</option>
+                            <option value="direction">Direction</option>
+                            <option value="solid">Solid Color</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="density">Density: <span id="densityValue">15</span></label>
+                        <input type="range" id="density" min="5" max="30" value="15" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="scale">Arrow Scale: <span id="scaleValue">0.3</span></label>
+                        <input type="range" id="scale" min="0.1" max="1.0" value="0.3" step="0.05">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Domain Range</h3>
+                    <div class="range-inputs">
+                        <div class="form-group inline">
+                            <label for="xMin">X: </label>
+                            <input type="number" id="xMin" value="-5" step="0.5">
+                            <span>to</span>
+                            <input type="number" id="xMax" value="5" step="0.5">
+                        </div>
+                        <div class="form-group inline">
+                            <label for="yMin">Y: </label>
+                            <input type="number" id="yMin" value="-5" step="0.5">
+                            <span>to</span>
+                            <input type="number" id="yMax" value="5" step="0.5">
+                        </div>
+                        <div class="form-group inline" id="zRangeGroup" style="display: none;">
+                            <label for="zMin">Z: </label>
+                            <input type="number" id="zMin" value="-5" step="0.5">
+                            <span>to</span>
+                            <input type="number" id="zMax" value="5" step="0.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Animation</h3>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="animate">
+                            Animate (use 't' in expression)
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="animSpeed">Speed: <span id="animSpeedValue">1.0</span></label>
+                        <input type="range" id="animSpeed" min="0.1" max="3.0" value="1.0" step="0.1">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Presets</h3>
+                    <div class="presets-grid">
+                        <button class="preset-btn" data-expr="i*(-y) + j*x" data-dim="2d">Circular</button>
+                        <button class="preset-btn" data-expr="i*x + j*y" data-dim="2d">Radial</button>
+                        <button class="preset-btn" data-expr="i*sin(y) + j*sin(x)" data-dim="2d">Wave</button>
+                        <button class="preset-btn" data-expr="i*(-y/(x^2+y^2)) + j*(x/(x^2+y^2))" data-dim="2d">Vortex</button>
+                        <button class="preset-btn" data-expr="i*cos(x)*sin(y) + j*sin(x)*cos(y)" data-dim="2d">Saddle</button>
+                        <button class="preset-btn" data-expr="i*(-y) + j*x + k*z" data-dim="3d">3D Circular</button>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="updateBtn" class="primary-btn">Update Visualization</button>
+                    <button id="resetBtn" class="secondary-btn">Reset View</button>
+                    <button id="exportBtn" class="secondary-btn">Export Image</button>
+                </div>
+
+                <div class="section info">
+                    <h4>Quick Guide:</h4>
+                    <ul>
+                        <li><strong>i, j, k:</strong> Unit vectors (x, y, z directions)</li>
+                        <li><strong>Variables:</strong> x, y, z, t (time)</li>
+                        <li><strong>Functions:</strong> sin, cos, tan, exp, log, sqrt, abs</li>
+                        <li><strong>Operators:</strong> +, -, *, /, ^</li>
+                        <li><strong>3D Mode:</strong> Mouse drag to rotate, scroll to zoom</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Visualization Canvas -->
+            <div class="visualization-panel">
+                <div id="canvas-container">
+                    <canvas id="renderCanvas"></canvas>
+                </div>
+                <div class="stats-panel" id="statsPanel">
+                    <div class="stat">Points: <span id="pointCount">0</span></div>
+                    <div class="stat">Max Magnitude: <span id="maxMag">0</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="vectorField.js"></script>
+    <script src="renderer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

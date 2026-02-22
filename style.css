@@ -1,0 +1,357 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* Control Panel */
+.control-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    max-height: calc(100vh - 180px);
+    overflow-y: auto;
+}
+
+.section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.section h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+}
+
+.section h4 {
+    color: #555;
+    margin-bottom: 10px;
+    font-size: 0.95em;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+    font-size: 0.9em;
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.95em;
+    transition: border-color 0.3s;
+}
+
+.form-group input[type="text"]:focus,
+.form-group select:focus,
+.form-group input[type="number"]:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.form-group input[type="range"] {
+    width: 100%;
+    margin-top: 5px;
+}
+
+.form-group.inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group.inline label {
+    margin-bottom: 0;
+    min-width: 25px;
+}
+
+.form-group.inline input[type="number"] {
+    width: 70px;
+    padding: 6px;
+}
+
+.form-group.inline span {
+    color: #777;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: #777;
+    margin-top: 5px;
+}
+
+.error-message {
+    color: #e74c3c;
+    font-size: 0.85em;
+    margin-top: 5px;
+    min-height: 20px;
+}
+
+/* Presets */
+.presets-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.preset-btn {
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: all 0.2s;
+}
+
+.preset-btn:hover {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+/* Buttons */
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.primary-btn,
+.secondary-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.primary-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+}
+
+.secondary-btn:hover {
+    background: #667eea;
+    color: white;
+}
+
+/* Info Section */
+.section.info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: none;
+}
+
+.section.info ul {
+    list-style: none;
+    font-size: 0.85em;
+}
+
+.section.info li {
+    margin-bottom: 6px;
+    color: #555;
+}
+
+.section.info strong {
+    color: #667eea;
+}
+
+/* Visualization Panel */
+.visualization-panel {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+#canvas-container {
+    width: 100%;
+    height: calc(100vh - 200px);
+    background: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+#renderCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* Stats Panel */
+.stats-panel {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 0.9em;
+}
+
+.stat {
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.stat span {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* Scrollbar Styling */
+.control-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.control-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.control-panel::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 4px;
+}
+
+.control-panel::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .control-panel {
+        max-height: none;
+    }
+    
+    #canvas-container {
+        height: 600px;
+    }
+}
+
+/* Range Input Styling (Custom) */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    background: #764ba2;
+    transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #667eea;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+    background: #764ba2;
+    transform: scale(1.2);
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: #667eea;
+}

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vector Field Parser Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <script src="vectorField.js"></script>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .test { margin: 20px 0; padding: 10px; background: #f0f0f0; }
+        .pass { color: green; }
+        .fail { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Vector Field Parser Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const vf = new VectorField();
+        const results = document.getElementById('results');
+
+        function test(expression, testPoint, expectedVector, description) {
+            vf.parse(expression, 2);
+            const result = vf.evaluate(testPoint.x, testPoint.y, 0, 0);
+            
+            const xMatch = Math.abs(result.x - expectedVector.x) < 0.001;
+            const yMatch = Math.abs(result.y - expectedVector.y) < 0.001;
+            const pass = xMatch && yMatch;
+
+            const div = document.createElement('div');
+            div.className = 'test';
+            div.innerHTML = `
+                <strong>${description}</strong><br>
+                Expression: <code>${expression}</code><br>
+                At point: (${testPoint.x}, ${testPoint.y})<br>
+                Expected: (${expectedVector.x}, ${expectedVector.y})<br>
+                Got: (${result.x.toFixed(3)}, ${result.y.toFixed(3)})<br>
+                <span class="${pass ? 'pass' : 'fail'}">${pass ? '✓ PASS' : '✗ FAIL'}</span>
+            `;
+            results.appendChild(div);
+        }
+
+        // Run tests
+        test('i*(-y) + j*x', {x: 1, y: 2}, {x: -2, y: 1}, 
+             'Circular flow (coefficients after)');
+        
+        test('(-y)*i + x*j', {x: 1, y: 2}, {x: -2, y: 1}, 
+             'Circular flow (coefficients before)');
+        
+        test('i*x + j*y', {x: 3, y: 4}, {x: 3, y: 4}, 
+             'Radial expansion');
+        
+        test('i*sin(y) + j*sin(x)', {x: 0, y: Math.PI/2}, {x: 1, y: 0}, 
+             'Wave field with trig functions');
+        
+        test('i*2*x + j*3*y', {x: 1, y: 1}, {x: 2, y: 3}, 
+             'Scaled radial (coefficients both sides)');
+        
+        test('-i*y + j*x', {x: 1, y: 2}, {x: -2, y: 1}, 
+             'Circular flow with negative prefix');
+
+        test('i + j*2', {x: 5, y: 5}, {x: 1, y: 2}, 
+             'Constant field');
+    </script>
+</body>
+</html>
